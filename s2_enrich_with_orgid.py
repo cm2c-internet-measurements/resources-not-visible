@@ -7,17 +7,10 @@ import csv
 import ipaddr
 
 
-# if __name__ == "__main__":
-#     rc = rdap_client.rdap_client("https://rdap.lacnic.net/rdap")
-
-#     r = rc.rdap_query("ip", "200.40.20.1")
-
-#     # print(r)
-
 if __name__ == "__main__":
     print("Enriching CSV file")
 
-    csvfile = open("var/s1_invalid_prefixes.csv", "r")
+    csvfile = open("var/s1_invisible_prefixes.csv", "r")
     outfile = open("var/s2_enrich_with_orgid.csv", "w")
 
     csvin = csv.DictReader(csvfile, dialect="excel", delimiter="|")
@@ -30,7 +23,11 @@ if __name__ == "__main__":
     newheader = []
     ouput_array = []
     # csvout.writerow(header)
+    lines = 0
     for line in csvin:
+        lines = lines + 1
+        if lines >= 35:
+            break
         # print(line)
         newline = {}
         newheader = []
@@ -41,7 +38,7 @@ if __name__ == "__main__":
             v = line[key]
             # print("\tk={}, v={}".format(k,v))
             try:
-                n4 = ipaddr.IPv4Network(v)
+                n6 = ipaddr.IPv6Network(v)
                 orgid = rdapc.prefixToOrgid(v)
                 newline[k] = v
                 newheader.append(k)

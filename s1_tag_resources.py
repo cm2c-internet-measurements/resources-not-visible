@@ -79,7 +79,7 @@ if __name__ == "__main__":
     for e in ndb.runsql(sql_alloc):
         pfx = str(e['prefix'])
         logging.debug("loading alloc for {} ".format(pfx))
-        pyt[pfx] = 'NV'
+        pyt[pfx] = 'N'
         stats.inc('allocs')
     #
     logging.info("Loaded {} allocs into trie".format(stats.get('allocs')) )
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     # END FOR X
 
     for y in pyt:
-        if pyt[y] == "NV":
+        if pyt[y] == "N":
             stats.inc('invisible')
         csvrow = [y, pyt[y]]
         csv_export.writerow(csvrow)
