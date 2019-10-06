@@ -1,14 +1,10 @@
-# RPKI Invalid Routes
+# IPv4 and IPv6 Invisible Resources
 
-**Author**: carlos@lacnic.net AT Punta Cana, 20190506
+**Author**: carlos@lacnic.net AT Panama, 20191006
 
 ## Goal
 
-Find all routes visible in BGP which are currently being invalidated by RPKI ROAs and group them by:
-
-- country
-- org-id (LACNIC-specific)
-- org name (more generic)
+Find all RIR assignments that are currently **NOT** visible in the routing table.
 
 ## Pipeline Description
 
@@ -19,15 +15,15 @@ STEP 0: generar el netdata.db (esto tiene su propio pipeline)
    script: s0_get_netdatadb
    salida: netdata-latest.db
 
-STEP 1: generar la lista de prefijos invalidados
-   script: s1_invalid_prefixes
-   salida: s1_invalid_prefixes.csv
-   formato: Prefix|Status|OriginAS|ROAAS|ROAPrefix|MaxLen
+STEP 1: tag assignments as visible / not visible
+   script: s1_tag_resources
+   salida: s1_tag_resources.csv
+   formato: Prefix|VisibleOrNot
 
 STEP 2: agregarle a cada línea el org-id:
    script: s2_enrich_with_orgid
    salida: s2_enrich_with_orgid.csv
-   format: Prefix|Status|OriginAS|ROAAS|ROAPrefix|MaxLen|ORGID
+   format: Prefix|VisibleOrNot|org-id
 
 agrupar listado por org ids y generar un segundo listado por org ids con número de anuncios invalidados
    script: s3_group_by_orgid
