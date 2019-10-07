@@ -15,8 +15,8 @@ if __name__ == "__main__":
 
     csvin = csv.DictReader(csvfile, dialect="excel", delimiter="|")
 
-    rdapc = rdap_client.rdap_client("https://rdap.lacnic.net/rdapt2/", \
-            w_apikey="1d72e332-ed44-4234-bc45-6bde980d2705-a09732ff-0746-4d95-986a-a5111890c6ba"
+    rdapc = rdap_client.rdap_client("https://rdap.lacnic.net/rdap" \
+            , w_apikey="1d72e332-ed44-4234-bc45-6bde980d2705-a09732ff-0746-4d95-986a-a5111890c6ba"
             )
 
     header = next(csvin, None)
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     lines = 0
     for line in csvin:
         lines = lines + 1
-        if lines >= 35:
+        if lines >= 10000:
             break
         # print(line)
         newline = {}

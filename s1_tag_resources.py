@@ -100,7 +100,6 @@ if __name__ == "__main__":
     for x in ndb.runsql("SELECT * FROM riswhois WHERE type='{}' ".format(type, rir)):
         stats.inc('nroutes')
         rpfx = str(x['prefix'])
-        # (rov_status, roas) = assignValidityStatus(roadata_pyt, x, 4)
 
         try:
             k = pyt.get_key(rpfx)
@@ -110,13 +109,18 @@ if __name__ == "__main__":
 
     # END FOR X
 
+    # write output
     for y in pyt:
         if pyt[y] == "N":
             stats.inc('invisible')
-        csvrow = [y, pyt[y]]
-        csv_export.writerow(csvrow)
+            csvrow = [y, pyt[y]]
+            csv_export.writerow(csvrow)
+        else:
+            # enable to write all resources to output
+            # csvrow = [y, pyt[y]]
+            # csv_export.writerow(csvrow)
+            pass
     # END FOR y
-
 
     logging.info("Found {} TOTAL routes".format(stats.get('nroutes')) )
     logging.info("Found {} allocations for rir {}".format(stats.get('allocs'), rir) )
