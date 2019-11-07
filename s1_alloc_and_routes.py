@@ -15,7 +15,6 @@ import csv
 import ipaddress as ipaddr
 
 dbfile = "./var/netdata-latest.db"
-# cc = 'AR'
 rir = 'lacnic'
 type = 'ipv4'
 maxLen = 24
@@ -63,7 +62,6 @@ class counters:
         self.cnt[wkey] = self.cnt[wkey] + winc
 # end counters
 
-
 if __name__ == "__main__":
     logging.basicConfig( level=logging.INFO )
     stats = counters()
@@ -74,7 +72,7 @@ if __name__ == "__main__":
 
     # load allocations into pytricia
     logging.info("Loading Allocations and Assignments into pytricia")
-    pyt = pytricia.PyTricia(128)
+    pyt = pytricia.PyTricia(32)
     sql_alloc = "SELECT * FROM numres WHERE rir='{}' AND type='{}' AND (status='allocated' or status='assigned') " \
         .format(rir, type)
     stats.set('allocs', 0)
@@ -94,11 +92,6 @@ if __name__ == "__main__":
     stats.set('invisible', 0)
     stats.set('nroutes', 0)
     stats.set('nrouteslacnic',0)
-
-    # open file for csv export
-    csvfile = open("var/s1_invisible_prefixes.csv", "w")
-    csv_export = csv.writer(csvfile, dialect='excel', delimiter='|')
-    csv_export.writerow(["Prefix", "visible", "total"])
 
     for x in ndb.runsql("SELECT * FROM riswhois WHERE type='{}' and viewed_by>{} ".format(type, minpeers)):
         stats.inc('nroutes')
@@ -132,19 +125,25 @@ if __name__ == "__main__":
         pyt[y]['total'] = pfxalloc.num_addresses
     # end for y
 
+    # open file for csv export
+    csvfile = open("var/s1_invisible_prefixes.csv", "w")
+    csv_export = csv.writer(csvfile, dialect='excel', delimiter='|')
+    csv_export.writerow(["Prefix", "visible", "dark", "total"])
+
 
     # Write output
     for y in pyt:
         if pyt[y]['nrutas'] == 0:
             stats.inc('invisible')
             # csvrow = [y, pyt[y]]
-            csvrow = [y, pyt[y]['visible'], pyt[y]['dark'] ]
+            csvrow = [y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
             csv_export.writerow(csvrow)
         else:
             stats.inc('visible')
             stats.inc('nrouteslacnic', pyt[y]['nrutas'] )
-            csvrow = [y, pyt[y]]
-            # csv_export.writerow(csvrow)
+            csvrow = [y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
+            # csvrow = [y, pyt[y]]
+            csv_export.writerow(csvrow)
             pass
     # END FOR y
 
