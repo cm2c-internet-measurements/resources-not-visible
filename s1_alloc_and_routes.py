@@ -19,6 +19,7 @@ rir = 'lacnic'
 type = 'ipv4'
 maxLen = 24
 minpeers = 1
+LIMIT = 10000
 
 class netdatadb:
 	def __init__(self, wdb):
@@ -63,6 +64,9 @@ class counters:
 # end counters
 
 def loadAllocsTrie_naif():
+    """
+    Cargamos asignaciones en el trie asumiendo que toda ruta es un prefijo igual o mas especifico a una asignación.
+    """
     ndb = netdatadb(dbfile)
 
     # load allocations into pytricia
@@ -73,8 +77,10 @@ def loadAllocsTrie_naif():
     stats.set('allocs', 0)
     for e in ndb.runsql(sql_alloc):
         pfx = str(e['prefix'])
+        org = int(e['orgid'])
         logging.debug("loading alloc for {} ".format(pfx))
-        pyt[pfx] = {'pfx': pfx, 'rutas': [], 'nrutas': 0}
+        # pyt[pfx] = {'pfx': pfx, 'rutas': [], 'nrutas': 0}
+        pyt[pfx] = {'pfx': pfx, 'rutas': [], 'nrutas': 0, 'orgid': org}
         stats.inc('allocs')
     #
     logging.info("Loaded {} allocs into trie".format(stats.get('allocs')) )
@@ -82,6 +88,10 @@ def loadAllocsTrie_naif():
 # end def loadAllocsTrie_naif
 
 def loadAllocsTrie_compact():
+    """
+    Cargamos el trie viendo que una organización puede tener prefijos agregables, y que las rutas que publica
+    en realidad son más especificas que estas asignaciones agregadas.
+    """
     ndb = netdatadb(dbfile)
 
     # load allocations into pytricia
@@ -89,13 +99,18 @@ def loadAllocsTrie_compact():
     pyt = pytricia.PyTricia(32)
 
     # first loop over orgids
-    sql_orgs = "SELECT orgid FROM numres WHERE rir='{}' AND type='{}' AND (status='allocated' or status='assigned') LIMIT 100000" \
-        .format(rir, type)
+    sql_orgs = "SELECT orgid FROM numres WHERE rir='{}' AND type='{}' AND (status='allocated' or status='assigned') LIMIT {}" \
+        .format(rir, type, LIMIT)
 
     stats.set('allocs', 0)
+    no = 0
     for o in ndb.runsql(sql_orgs):
         org = int(o['orgid'])
-        logging.info("processing orgid: {}".format(org))
+        logging.debug("processing orgid: {}".format(org))
+        no = no + 1
+        if no % 200 == 0:
+            logging.info("Loaded prefixes for {} organizations".format(no))
+        
         sql_alloc = "SELECT * FROM numres WHERE rir='{}' AND type='{}' and orgid={} AND (status='allocated' or status='assigned') " \
             .format(rir, type, org)
         pfxlist = []
@@ -131,10 +146,6 @@ if __name__ == "__main__":
     # pyt = loadAllocsTrie_naif()
     pyt = loadAllocsTrie_compact()
 
-    # read routes and look for covering roas, logi assumes that most if not all ROAs will
-    # protect _more specific_ prefixes than the ones listed in roas
-
-    # stats.set('ninvalid', 0)
     stats.set('visible', 0)
     stats.set('invisible', 0)
     stats.set('nroutes', 0)
@@ -183,12 +194,12 @@ if __name__ == "__main__":
         if pyt[y]['nrutas'] == 0:
             stats.inc('invisible')
             # csvrow = [y, pyt[y]]
-            csvrow = [y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
+            csvrow = [pyt[y]['orgid'], y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
             csv_export.writerow(csvrow)
         else:
             stats.inc('visible')
             stats.inc('nrouteslacnic', pyt[y]['nrutas'] )
-            csvrow = [y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
+            csvrow = [pyt[y]['orgid'], y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
             # csvrow = [y, pyt[y]]
             csv_export.writerow(csvrow)
             pass
