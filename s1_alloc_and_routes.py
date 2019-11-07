@@ -8,18 +8,17 @@
 import pytricia
 import sqlite3
 import logging
-import fire
+import click
 import collections
 import pysnooper
 import csv
 import ipaddress as ipaddr
 
-dbfile = "./var/netdata-latest.db"
+# dbfile = "./var/netdata-latest.db"
 rir = 'lacnic'
 type = 'ipv4'
-maxLen = 24
 minpeers = 1
-LIMIT = 10000
+# LIMIT = 10000
 
 class netdatadb:
 	def __init__(self, wdb):
@@ -63,9 +62,9 @@ class counters:
         self.cnt[wkey] = self.cnt[wkey] + winc
 # end counters
 
-def loadAllocsTrie_naif():
+def loadAllocsTrie_naif(dbfile):
     """
-    Cargamos asignaciones en el trie asumiendo que toda ruta es un prefijo igual o mas especifico a una asignación.
+    Cargamos asignaciones en el trie asumiendo que toda ruta es un prefijo igual o mas especifico a una asignacion.
     """
     ndb = netdatadb(dbfile)
 
@@ -87,10 +86,10 @@ def loadAllocsTrie_naif():
     return pyt
 # end def loadAllocsTrie_naif
 
-def loadAllocsTrie_compact():
+def loadAllocsTrie_compact(dbfile, LIMIT):
     """
-    Cargamos el trie viendo que una organización puede tener prefijos agregables, y que las rutas que publica
-    en realidad son más especificas que estas asignaciones agregadas.
+    Cargamos el trie viendo que una organizacion puede tener prefijos agregables, y que las rutas que publica
+    en realidad son mas especificas que estas asignaciones agregadas.
     """
     ndb = netdatadb(dbfile)
 
@@ -134,17 +133,18 @@ def loadAllocsTrie_compact():
     return pyt
 # end def loadAllocsTrie_compact
 
-
-if __name__ == "__main__":
-    logging.basicConfig( level=logging.INFO )
-    stats = counters()
-    logging.debug("Finding Invisible Resources - 20191006")
-
+@click.command()
+@click.option("--date", required=True, help="Process data obtained on <<DATE>>.")
+@click.option("--limit", default=10000, help="Process at most LIMIT orgs.")
+def cli(date, limit):
+    dbfile = "var/netdata-{}.db".format(date)
+    logging.info("Opening netdata file {}".format(dbfile))
+    LIMIT = limit
     #
     ndb = netdatadb(dbfile)
 
-    # pyt = loadAllocsTrie_naif()
-    pyt = loadAllocsTrie_compact()
+    # pyt = loadAllocsTrie_naif(dbfile)
+    pyt = loadAllocsTrie_compact(dbfile, LIMIT)
 
     stats.set('visible', 0)
     stats.set('invisible', 0)
@@ -184,9 +184,9 @@ if __name__ == "__main__":
     # end for y
 
     # open file for csv export
-    csvfile = open("var/s1_invisible_prefixes.csv", "w")
+    csvfile = open("var/s1_invisible_prefixes-{}.csv".format(date), "w")
     csv_export = csv.writer(csvfile, dialect='excel', delimiter='|')
-    csv_export.writerow(["Prefix", "visible", "dark", "total"])
+    csv_export.writerow(["orgid","prefix", "visible", "dark", "total"])
 
     # Write output
     for y in pyt:
@@ -215,5 +215,13 @@ if __name__ == "__main__":
     # logging.info("Found {} unknown routes".format(stats.get('nunknown')) )
 
     csvfile.close()
+
+# end def cli
+
+if __name__ == "__main__":
+    logging.basicConfig( level=logging.INFO )
+    stats = counters()
+    logging.debug("Finding Invisible Resources - 20191006")
+    cli()
 
 # end script
