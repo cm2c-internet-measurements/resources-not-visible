@@ -188,7 +188,6 @@ if __name__ == "__main__":
     csv_export = csv.writer(csvfile, dialect='excel', delimiter='|')
     csv_export.writerow(["Prefix", "visible", "dark", "total"])
 
-
     # Write output
     for y in pyt:
         if pyt[y]['nrutas'] == 0:
