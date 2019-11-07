@@ -4,12 +4,19 @@
 
 d=$1
 
-echo Invoke as: ./s0_get_netdatadb.sh YYYYMMDD
-echo date is $d
+if [ -z "$d" ]
+then
+    echo Invoke as: ./s0_get_netdatadb.sh YYYYMMDD
+    exit 1
+fi
 
-wget -c --output-document=var/netdata-$d.db \
-    http://trantor.labs.lacnic.net/carlos/netdata/netdata-$d.db
+echo Getting netdata for date $d
+
+wget -c --output-document=var/netdata-$d.db.gz \
+    http://trantor.labs.lacnic.net/carlos/netdata/netdata-$d.db.gz
 
 cd var
+
+gunzip netdata-$d.db.gz
 
 ln -sf netdata-$d.db netdata-latest.db 
