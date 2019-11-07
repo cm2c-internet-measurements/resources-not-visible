@@ -9,8 +9,8 @@ verify_ssl = true
 pytricia = "*"
 click = "*"
 minirdapc = {git = "https://github.com/cm2c-internet-measurements/minirdapc.git"}
-pysnooper = "*"
 fire = "*"
+PySnooper = "*"
 
 [requires]
 python_version = "3.7"

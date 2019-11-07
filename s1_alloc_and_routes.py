@@ -62,12 +62,7 @@ class counters:
         self.cnt[wkey] = self.cnt[wkey] + winc
 # end counters
 
-if __name__ == "__main__":
-    logging.basicConfig( level=logging.INFO )
-    stats = counters()
-    logging.debug("Finding Invisible Resources - 20191006")
-
-    #
+def loadAllocsTrie_naif():
     ndb = netdatadb(dbfile)
 
     # load allocations into pytricia
@@ -83,6 +78,58 @@ if __name__ == "__main__":
         stats.inc('allocs')
     #
     logging.info("Loaded {} allocs into trie".format(stats.get('allocs')) )
+    return pyt
+# end def loadAllocsTrie_naif
+
+def loadAllocsTrie_compact():
+    ndb = netdatadb(dbfile)
+
+    # load allocations into pytricia
+    logging.info("Loading Allocations and Assignments into pytricia")
+    pyt = pytricia.PyTricia(32)
+
+    # first loop over orgids
+    sql_orgs = "SELECT orgid FROM numres WHERE rir='{}' AND type='{}' AND (status='allocated' or status='assigned') LIMIT 100000" \
+        .format(rir, type)
+
+    stats.set('allocs', 0)
+    for o in ndb.runsql(sql_orgs):
+        org = int(o['orgid'])
+        logging.info("processing orgid: {}".format(org))
+        sql_alloc = "SELECT * FROM numres WHERE rir='{}' AND type='{}' and orgid={} AND (status='allocated' or status='assigned') " \
+            .format(rir, type, org)
+        pfxlist = []
+        for e in ndb.runsql(sql_alloc):
+            pfx = str(e['prefix'])
+            pfxlist.append(ipaddr.ip_network(pfx))
+            logging.debug("loading alloc for {} ".format(pfx))
+            # pyt[pfx] = {'pfx': pfx, 'rutas': [], 'nrutas': 0, 'orgid': org}
+            # stats.inc('allocs')
+        # end for e
+        # collapse pfxlist 
+        pfxlist2 = [ipa for ipa in ipaddr.collapse_addresses(pfxlist) ]
+        for p in pfxlist2:
+            pyt[p] = {'pfx': p, 'rutas': [], 'nrutas': 0, 'orgid': org}
+            stats.inc('allocs')
+
+    # end for o
+
+    #
+    logging.info("Loaded {} compacted allocs into trie".format(stats.get('allocs')) )
+    return pyt
+# end def loadAllocsTrie_compact
+
+
+if __name__ == "__main__":
+    logging.basicConfig( level=logging.INFO )
+    stats = counters()
+    logging.debug("Finding Invisible Resources - 20191006")
+
+    #
+    ndb = netdatadb(dbfile)
+
+    # pyt = loadAllocsTrie_naif()
+    pyt = loadAllocsTrie_compact()
 
     # read routes and look for covering roas, logi assumes that most if not all ROAs will
     # protect _more specific_ prefixes than the ones listed in roas
