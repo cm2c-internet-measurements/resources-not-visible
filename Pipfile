@@ -11,6 +11,8 @@ click = "*"
 minirdapc = {git = "https://github.com/cm2c-internet-measurements/minirdapc.git"}
 fire = "*"
 PySnooper = "*"
+pandas = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.7"

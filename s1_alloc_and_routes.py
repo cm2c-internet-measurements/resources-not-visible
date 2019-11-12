@@ -146,6 +146,8 @@ def cli(date, limit):
     # pyt = loadAllocsTrie_naif(dbfile)
     pyt = loadAllocsTrie_compact(dbfile, LIMIT)
 
+    # PROCESS ENTRIES
+    # Get all RIS routes for the given resource type
     stats.set('visible', 0)
     stats.set('invisible', 0)
     stats.set('nroutes', 0)
@@ -161,9 +163,8 @@ def cli(date, limit):
             pyt[k]['nrutas'] = pyt[k]['nrutas']+1
         except:
             continue
-
+        
     # END FOR X
-
 
     # process each entry, compact routes and calculate unassigned space
     for y in pyt:
@@ -183,6 +184,7 @@ def cli(date, limit):
         pyt[y]['total'] = pfxalloc.num_addresses
     # end for y
 
+    # WRITE OUTPUT
     # open file for csv export
     csvfile = open("var/s1_invisible_prefixes-{}.csv".format(date), "w")
     csv_export = csv.writer(csvfile, dialect='excel', delimiter='|')
@@ -192,17 +194,17 @@ def cli(date, limit):
     for y in pyt:
         if pyt[y]['nrutas'] == 0:
             stats.inc('invisible')
-            # csvrow = [y, pyt[y]]
-            csvrow = [pyt[y]['orgid'], y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
-            csv_export.writerow(csvrow)
+            # csvrow = [pyt[y]['orgid'], y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
+            # csv_export.writerow(csvrow)
         else:
             stats.inc('visible')
             stats.inc('nrouteslacnic', pyt[y]['nrutas'] )
-            csvrow = [pyt[y]['orgid'], y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
-            # csvrow = [y, pyt[y]]
-            csv_export.writerow(csvrow)
-            pass
-    # END FOR y
+            # csvrow = [pyt[y]['orgid'], y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
+            # csv_export.writerow(csvrow)
+        # end if
+        csvrow = [pyt[y]['orgid'], y, pyt[y]['visible'], pyt[y]['dark'], pyt[y]['total'] ]
+        csv_export.writerow(csvrow)
+   # END FOR y
 
 
     # Print results
@@ -212,7 +214,6 @@ def cli(date, limit):
     logging.info("Found {} invisible allocs for type {}".format(stats.get('invisible'), type) )
     logging.info("Found {} visible allocs for type {}".format(stats.get('visible'), type) )
     logging.info("Found {} visible routes for type {}, rir={} ".format(stats.get('nrouteslacnic'), type, rir) )
-    # logging.info("Found {} unknown routes".format(stats.get('nunknown')) )
 
     csvfile.close()
 
