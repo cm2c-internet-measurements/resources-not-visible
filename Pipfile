@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
 
 [packages]
 pytricia = "*"
@@ -13,6 +14,7 @@ fire = "*"
 PySnooper = "*"
 pandas = "*"
 numpy = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.7"
