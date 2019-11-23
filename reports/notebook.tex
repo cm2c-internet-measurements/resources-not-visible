@@ -323,8 +323,8 @@ El algoritmo de alto nivel es:
   \def\labelenumii{\arabic{enumii}.}
   \tightlist
   \item
-    Para cada ruta de RIS, identificar el agregado de donde proviene, y
-    de allí la organización a la que pertenece
+    Para cada ruta de RIS, identificar el agregado de asignaciones de
+    donde proviene, y de allí la organización a la que pertenece
   \end{enumerate}
 \item
   Recorrer el producto de (2)
@@ -350,21 +350,30 @@ orgid|prefix|visible|dark|total
 272078|45.4.0.0/22|1024|0|1024
 271038|45.4.4.0/22|1024|0|1024
 261330|45.4.8.0/22|1024|0|1024
-265673|45.4.12.0/22|1024|0|1024
-114434|45.4.16.0/22|1024|0|1024
-257531|45.4.20.0/22|1024|0|1024
-140690|45.4.24.0/22|1024|0|1024
-272597|45.4.28.0/22|1024|0|1024
-263168|45.4.32.0/22|1024|0|1024
-193851|45.4.36.0/22|1024|0|1024
-220803|45.4.40.0/22|1024|0|1024
-268918|45.4.44.0/22|1024|0|1024
-257375|45.4.48.0/22|1024|0|1024
-124177|45.4.52.0/22|1024|0|1024
-270556|45.4.56.0/22|1024|0|1024
+
+...
+...
 258668|45.4.60.0/22|1024|0|1024
 258825|45.4.64.0/22|1024|0|1024
 \end{verbatim}
+
+Las columnas:
+
+\begin{itemize}
+\tightlist
+\item
+  orgid: coincide con el opaque-id del delegated-extended, identifica la
+  organización
+\item
+  prefijo: prefijo IPv4
+\item
+  visible: cantidad de direcciones de este prefijo visibles (es decir,
+  contenidas en rutas)
+\item
+  dark: cantidad de direcciones no-visibles
+\item
+  total: cantidad total de direcciones contenidas en el prefijo
+\end{itemize}
 
     \hypertarget{resultados}{%
 \subsection{Resultados}\label{resultados}}
@@ -379,13 +388,15 @@ En este resultado se listan las asignaciones completamente invisibles
 tienen.
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}20}]:} \PY{k+kn}{import} \PY{n+nn}{pandas}
+{\color{incolor}In [{\color{incolor}56}]:} \PY{k+kn}{import} \PY{n+nn}{pandas}
          \PY{k+kn}{import} \PY{n+nn}{sqlite3}
          
+         \PY{n}{w\PYZus{}date} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{20191110}\PY{l+s+s1}{\PYZsq{}}
          \PY{n}{conn} \PY{o}{=} \PY{n}{sqlite3}\PY{o}{.}\PY{n}{connect}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{:memory:}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
          
-         \PY{n}{inf} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{s1\PYZus{}invisible\PYZus{}prefixes\PYZhy{}20191110.csv}\PY{l+s+s2}{\PYZdq{}}
+         \PY{n}{inf} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{s1\PYZus{}invisible\PYZus{}prefixes\PYZhy{}}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{.csv}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{w\PYZus{}date}\PY{p}{)}
          \PY{n}{df} \PY{o}{=} \PY{n}{pandas}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{n}{inf}\PY{p}{,} \PY{n}{delimiter}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{|}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         \PY{n}{orgs} \PY{o}{=} \PY{n}{pandas}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{orgs\PYZus{}lacnic.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
          \PY{n}{df}\PY{o}{.}\PY{n}{to\PYZus{}sql}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{invr}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{conn}\PY{p}{,} \PY{n}{if\PYZus{}exists}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{append}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{index}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
          
          \PY{n}{df}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
@@ -393,7 +404,7 @@ tienen.
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}20}]:}     orgid         prefix  visible  dark  total
+{\color{outcolor}Out[{\color{outcolor}56}]:}     orgid         prefix  visible  dark  total
          0   20118  24.232.0.0/16    65536     0  65536
          1  272078    45.4.0.0/22     1024     0   1024
          2  271038    45.4.4.0/22     1024     0   1024
@@ -402,58 +413,223 @@ tienen.
 \end{Verbatim}
             
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}39}]:} \PY{n}{nva} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{query}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{visible == 0 and total \PYZgt{} 16384}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{o}{.}\PY{n}{sort\PYZus{}values}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{total}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{ascending}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}57}]:} \PY{n}{orgs}\PY{o}{.}\PY{n}{query}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{orgid == 65334}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}57}]:}        orgid                                  name           handle country  \textbackslash{}
+         45293  65334  United Nations Development Programme  AR-UNDP1-LACNIC      AR   
+         
+                        city  
+         45293  Buenos Aires  
+\end{Verbatim}
+            
+    \hypertarget{r2.-cantidad-de-asignaciones-invisibles-mayores-o-iguales-a-un-16}{%
+\subsubsection{R2. Cantidad de asignaciones invisibles mayores o iguales
+a un
+/16}\label{r2.-cantidad-de-asignaciones-invisibles-mayores-o-iguales-a-un-16}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}58}]:} \PY{n}{nva} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{query}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{visible == 0 and total \PYZgt{} 16384}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{o}{.}\PY{n}{sort\PYZus{}values}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{total}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{ascending}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
          \PY{c+c1}{\PYZsh{} nva.head(20)}
-         \PY{n+nb}{len}\PY{p}{(}\PY{n}{nva}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{total}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}
+         \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Cantidad de asignaciones grandes no visibles: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{nva}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{total}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Cantidad de asignaciones grandes no visibles: 26
+
+    \end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}59}]:} \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Valor aproximado de mercado de las direcciones no visibles en bloques grandes: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{ usd}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{nva}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{total}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}\PY{o}{*}\PY{l+m+mi}{15}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Valor aproximado de mercado de las direcciones no visibles en bloques grandes: 28508160 usd
+
+    \end{Verbatim}
+
+    \hypertarget{r2.1-listado-de-asignaciones-grandes-no-visibles}{%
+\subsubsection{R2.1: Listado de asignaciones grandes no
+visibles}\label{r2.1-listado-de-asignaciones-grandes-no-visibles}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}60}]:} \PY{n}{nva}\PY{o}{.}\PY{n}{to\PYZus{}csv}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{s1\PYZus{}bigallocs\PYZus{}notvisible\PYZhy{}}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{.csv}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{w\PYZus{}date}\PY{p}{,} \PY{n}{delimiter}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{|}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{)}
+         
+         \PY{c+c1}{\PYZsh{} orgs[\PYZsq{}orgid\PYZsq{}] = pandas.to\PYZus{}numeric(orgs[\PYZsq{}orgid\PYZsq{}])}
+         
+         \PY{n}{nva\PYZus{}b} \PY{o}{=} \PY{n}{nva}\PY{o}{.}\PY{n}{merge}\PY{p}{(}\PY{n}{orgs}\PY{p}{,} \PY{n}{on}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{orgid}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{how}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{left}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         
+         \PY{n}{nva\PYZus{}b}\PY{p}{[}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{prefix}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dark}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{visible}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{handle}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{country}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{]}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}39}]:} 26
+{\color{outcolor}Out[{\color{outcolor}60}]:}               prefix    dark  visible            handle  \textbackslash{}
+         0     186.172.0.0/14  262144        0  CL-CCSA39-LACNIC   
+         1     186.164.0.0/15  131072        0    VE-TCCA-LACNIC   
+         2      186.98.0.0/15  131072        0    CO-CTSE-LACNIC   
+         3      129.90.0.0/16   65536        0   VE-INSA1-LACNIC   
+         4     163.250.0.0/16   65536        0   CL-RESA2-LACNIC   
+         5     186.157.0.0/16   65536        0   AR-CCTI1-LACNIC   
+         6     167.134.0.0/16   65536        0    VE-PESA-LACNIC   
+         7      167.28.0.0/16   65536        0   CL-GLSA2-LACNIC   
+         8     166.110.0.0/16   65536        0    CL-BAED-LACNIC   
+         9     140.191.0.0/16   65536        0   AR-UNDP1-LACNIC   
+         10     164.96.0.0/16   65536        0    CL-SRCI-LACNIC   
+         11     164.98.0.0/16   65536        0    CL-EJCH-LACNIC   
+         12    162.122.0.0/16   65536        0    VE-MASA-LACNIC   
+         13    161.255.0.0/16   65536        0    VE-TCCA-LACNIC   
+         14    161.234.0.0/16   65536        0    VE-TCCA-LACNIC   
+         15    158.160.0.0/16   65536        0   VE-MASA1-LACNIC   
+         16    155.211.0.0/16   65536        0   BR-CTAE1-LACNIC   
+         17    152.139.0.0/16   65536        0   CL-BACH2-LACNIC   
+         18    148.250.0.0/16   65536        0    MX-SAWM-LACNIC   
+         19    148.248.0.0/16   65536        0   MX-GFIS4-LACNIC   
+         20    148.242.0.0/16   65536        0    MX-BNMS-LACNIC   
+         21    201.169.0.0/16   65536        0   MX-ASCV9-LACNIC   
+         22    177.234.0.0/17   32768        0  MX-SCYT11-LACNIC   
+         23    186.103.0.0/17   32768        0    CO-CTSE-LACNIC   
+         24    189.201.0.0/17   32768        0    MX-TPTE-LACNIC   
+         25  190.197.128.0/17   32768        0    AR-MOBE-LACNIC   
+         
+                                                          name country  
+         0                                    CLARO CHILE S.A.      CL  
+         1                         TELEFONICA VENEZOLANA, C.A.      VE  
+         2                COLOMBIA TELECOMUNICACIONES S.A. ESP      CO  
+         3                                        INTEVEP S.A.      VE  
+         4                                        REDBANC S.A.      CL  
+         5                                  AMX Argentina S.A.      AR  
+         6                                       Pequiven S.A.      VE  
+         7                           BANCO DEL ESTADO DE CHILE      CL  
+         8                                 Banco de A. Edwards      CL  
+         9                United Nations Development Programme      AR  
+         10        Servicio de Registro Civil e Identificacion      CL  
+         11                                  Ejercito de Chile      CL  
+         12                                       Maraven S.A.      VE  
+         13                        TELEFONICA VENEZOLANA, C.A.      VE  
+         14                        TELEFONICA VENEZOLANA, C.A.      VE  
+         15                                        Mavesa s.a.      VE  
+         16                        CENTRO TECNICO AEROESPACIAL      BR  
+         17                                     Banco de Chile      CL  
+         18    SERVICIOS ADMINISTRATIVOS WALMART S DE RL DE CV      MX  
+         19          Grupo Financiero Invermexico S.A. de C.V.      MX  
+         20                     Banco Nacional de Mexico, S.A.      MX  
+         21                              Axtel, S.A.B. de C.V.      MX  
+         22  SECRETARIA DE COMUNICACIONES Y TRANSPORTES COO{\ldots}      MX  
+         23               COLOMBIA TELECOMUNICACIONES S.A. ESP      CO  
+         24             TOTAL PLAY TELECOMUNICACIONES SA DE CV      MX  
+         25  Telefónica Móviles Argentina S.A. (Movistar Ar{\ldots}      AR  
+\end{Verbatim}
+            
+    \hypertarget{r3.-porcentaje-de-espacio-no-visible-respecto-del-espacio-asignado}{%
+\subsubsection{R3. Porcentaje de espacio no visible respecto del espacio
+asignado}\label{r3.-porcentaje-de-espacio-no-visible-respecto-del-espacio-asignado}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}61}]:} \PY{n}{dark\PYZus{}t} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dark}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{)}
+         \PY{n}{visible\PYZus{}t} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{visible}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{)}
+         \PY{n}{total\PYZus{}t} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{total}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{)}
+         
+         \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{El porcentaje de espacio asignado pero no visible: }\PY{l+s+si}{\PYZob{}0:.2f\PYZcb{}}\PY{l+s+s2}{\PYZpc{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{dark\PYZus{}t} \PY{o}{/} \PY{n}{total\PYZus{}t} \PY{o}{*} \PY{l+m+mi}{100}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+El porcentaje de espacio asignado pero no visible: 8.06\%
+
+    \end{Verbatim}
+
+    \hypertarget{r4.-cantidad-de-asignaciones-con-mayor-espacio-oscuro-pero-parcialmente-visibles}{%
+\subsubsection{R4. Cantidad de asignaciones con mayor espacio oscuro,
+pero parcialmente
+visibles}\label{r4.-cantidad-de-asignaciones-con-mayor-espacio-oscuro-pero-parcialmente-visibles}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}62}]:} \PY{n}{nva\PYZus{}parcial} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{query}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{dark\PYZgt{}0}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{o}{.}\PY{n}{sort\PYZus{}values}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dark}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{ascending}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+         \PY{n}{nvb\PYZus{}parcial} \PY{o}{=} \PY{n}{nva\PYZus{}parcial}\PY{o}{.}\PY{n}{merge}\PY{p}{(}\PY{n}{orgs}\PY{p}{,} \PY{n}{on}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{orgid}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{how}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{left}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         
+         \PY{c+c1}{\PYZsh{} }
+         
+         \PY{n}{nva\PYZus{}parcial\PYZus{}agg} \PY{o}{=} \PY{n}{nva\PYZus{}parcial}\PY{o}{.}\PY{n}{groupby}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{orgid}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+         \PY{n}{nvb\PYZus{}parcial}\PY{o}{.}\PY{n}{sort\PYZus{}values}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dark}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{ascending}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{l+m+mi}{10}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}62}]:}     orgid          prefix  visible    dark    total  \textbackslash{}
+         0   21461   201.96.0.0/11  1464064  633088  2097152   
+         1   21461  189.128.0.0/10  3690496  503808  4194304   
+         2   21461  187.192.0.0/11  1617408  479744  2097152   
+         3   21461  187.128.0.0/11  1703936  393216  2097152   
+         4   35073  191.104.0.0/13   131072  393216   524288   
+         5   21461  187.224.0.0/12   673792  374784  1048576   
+         6   20118   181.96.0.0/12   716800  331776  1048576   
+         7   21461  189.224.0.0/11  1819136  278016  2097152   
+         8  236102  181.216.0.0/13   262144  262144   524288   
+         9   47779  186.172.0.0/14        0  262144   262144   
+         
+                                            name            handle country  \textbackslash{}
+         0                   Uninet S.A. de C.V.   MX-USCV4-LACNIC      MX   
+         1                   Uninet S.A. de C.V.   MX-USCV4-LACNIC      MX   
+         2                   Uninet S.A. de C.V.   MX-USCV4-LACNIC      MX   
+         3                   Uninet S.A. de C.V.   MX-USCV4-LACNIC      MX   
+         4  COLOMBIA TELECOMUNICACIONES S.A. ESP    CO-CTSE-LACNIC      CO   
+         5                   Uninet S.A. de C.V.   MX-USCV4-LACNIC      MX   
+         6                Telecom Argentina S.A.    AR-TAST-LACNIC      AR   
+         7                   Uninet S.A. de C.V.   MX-USCV4-LACNIC      MX   
+         8                            CLARO S.A.   BR-CLSA7-LACNIC      BR   
+         9                      CLARO CHILE S.A.  CL-CCSA39-LACNIC      CL   
+         
+                    city  
+         0       Tlalpan  
+         1       Tlalpan  
+         2       Tlalpan  
+         3       Tlalpan  
+         4        BOGOTA  
+         5       Tlalpan  
+         6  Buenos Aires  
+         7       Tlalpan  
+         8     São Paulo  
+         9      Santiago  
 \end{Verbatim}
             
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}40}]:} \PY{n}{nva}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{total}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}\PY{o}{*}\PY{l+m+mi}{15}
+{\color{incolor}In [{\color{incolor}63}]:} \PY{n}{nvb\PYZus{}parcial}\PY{o}{.}\PY{n}{groupby}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{handle}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{sort\PYZus{}values}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dark}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{ascending}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{l+m+mi}{10}\PY{p}{)}
+         \PY{c+c1}{\PYZsh{} nvb\PYZus{}parcial.groupby(\PYZsq{}name\PYZsq{}).head(10)}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}40}]:} 28508160
+{\color{outcolor}Out[{\color{outcolor}63}]:}                     orgid   visible     dark     total
+         handle                                                
+         MX-USCV4-LACNIC    493603  12292864  3056384  15349248
+         VE-TCCA-LACNIC     300105    546816  1312768   1859584
+         CO-CTSE-LACNIC     561168   1666048  1119232   2785280
+         AR-TAST-LACNIC     281652   4053504   943616   4997120
+         BR-CLSA7-LACNIC   5430346   5158656   706816   5865472
+         MX-ASCV9-LACNIC    536375   1162752   492032   1654784
+         CL-CCSA39-LACNIC   191116    232448   431104    663552
+         EC-ANSA-LACNIC     317450    285184   416256    701440
+         MX-CTSC6-LACNIC    691054    643328   302848    946176
+         MX-MSCV17-LACNIC   218820   2106112   257280   2363392
 \end{Verbatim}
             
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}41}]:} \PY{n}{nva}
+{\color{incolor}In [{\color{incolor}64}]:} \PY{n}{nva\PYZus{}parcial\PYZus{}agg}\PY{o}{.}\PY{n}{get\PYZus{}group}\PY{p}{(}\PY{l+m+mi}{35073}\PY{p}{)}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{)}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}41}]:}         orgid            prefix  visible    dark   total
-         9914    47779    186.172.0.0/14        0  262144  262144
-         9911    23085    186.164.0.0/15        0  131072  131072
-         9877    35073     186.98.0.0/15        0  131072  131072
-         3537    95942     129.90.0.0/16        0   65536   65536
-         5569    12155    163.250.0.0/16        0   65536   65536
-         9902    38660    186.157.0.0/16        0   65536   65536
-         5656    95936    167.134.0.0/16        0   65536   65536
-         5652   245143     167.28.0.0/16        0   65536   65536
-         5649    13630    166.110.0.0/16        0   65536   65536
-         5032    65334    140.191.0.0/16        0   65536   65536
-         5574    54076     164.96.0.0/16        0   65536   65536
-         5575    13620     164.98.0.0/16        0   65536   65536
-         5565    95947    162.122.0.0/16        0   65536   65536
-         5563    23085    161.255.0.0/16        0   65536   65536
-         5561    23085    161.234.0.0/16        0   65536   65536
-         5453    13730    158.160.0.0/16        0   65536   65536
-         5446   144929    155.211.0.0/16        0   65536   65536
-         5428    16640    152.139.0.0/16        0   65536   65536
-         5414    53168    148.250.0.0/16        0   65536   65536
-         5412    77090    148.248.0.0/16        0   65536   65536
-         5406    29834    148.242.0.0/16        0   65536   65536
-         12050   21455    201.169.0.0/16        0   65536   65536
-         9207    97264    177.234.0.0/17        0   32768   32768
-         9881    35073    186.103.0.0/17        0   32768   32768
-         10544  236470    189.201.0.0/17        0   32768   32768
-         10902   20004  190.197.128.0/17        0   32768   32768
+{\color{outcolor}Out[{\color{outcolor}64}]:} orgid                                                 561168
+         prefix     191.104.0.0/13186.98.0.0/15186.168.0.0/14152.2{\ldots}
+         visible                                              1666048
+         dark                                                 1119232
+         total                                                2785280
+         dtype: object
 \end{Verbatim}
             
 

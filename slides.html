@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="TI LACNIC" />
+  <meta name="date" content="2019-11-20" />
+  <title>Espacio IPv4 de LACNIC no anunciado</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" type="text/css" media="screen, projection, print"
+    href="https://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css" />
+  <script src="https://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js"
+    charset="utf-8" type="text/javascript"></script>
+</head>
+<body>
+<div class="slide titlepage">
+  <h1 class="title">Espacio IPv4 de LACNIC no anunciado</h1>
+  <p class="author">
+TI LACNIC
+  </p>
+  <p class="date">20191120</p>
+</div>
+<div id="que-se-incluye-en-este-reporte" class="slide section level1">
+<h1>¿Que se incluye en este reporte?</h1>
+<p>Este reporte incluye información acerca de espacio IPv4 asignado por LACNIC pero que no está visible en la tabla de enrutamiento global.</p>
+</div>
+<div id="metodología" class="slide section level1">
+<h1>Metodología</h1>
+<p>Los datos para la elaboración de este reporte se toman de las siguientes fuentes:</p>
+<ul>
+<li>“delegated-extended” de LACNIC</li>
+<li>RIPE RIS IPv4 Dump</li>
+</ul>
+<p>El algoritmo de alto nivel es:</p>
+<ol style="list-style-type: decimal">
+<li>Recorrer el delegated extended
+<ol style="list-style-type: decimal">
+<li>Para cada organización, tomar todas sus asignaciones</li>
+<li>Producir un agregado de las mismas</li>
+</ol></li>
+<li>Recorrer el producto de (1)
+<ol style="list-style-type: decimal">
+<li>Para cada ruta de RIS, identificar el agregado de asignaciones de donde proviene, y de allí la organización a la que pertenece</li>
+</ol></li>
+<li>Recorrer el producto de (2)
+<ol style="list-style-type: decimal">
+<li>Para cada agregado, agregar todas las rutas que le corresponden y de allí calcular cuanto del total todas esas rutas cubren.</li>
+</ol></li>
+</ol>
+</div>
+<div id="producto-del-algoritmo" class="slide section level1">
+<h1>Producto del algoritmo</h1>
+<p>El producto es un archivo separado por pipes con la siguiente estructura:</p>
+<pre><code>orgid|prefix|visible|dark|total
+20118|24.232.0.0/16|65536|0|65536
+272078|45.4.0.0/22|1024|0|1024
+271038|45.4.4.0/22|1024|0|1024
+261330|45.4.8.0/22|1024|0|1024
+
+...
+...
+258668|45.4.60.0/22|1024|0|1024
+258825|45.4.64.0/22|1024|0|1024</code></pre>
+</div>
+<div id="resultados" class="slide section level1">
+<h1>Resultados</h1>
+</div>
+<div id="espacio-no-visible-vs-espacio-asignado" class="slide section level1">
+<h1>Espacio no visible vs espacio asignado</h1>
+<h2 id="section">8.06%</h2>
+</div>
+</body>
+</html>
