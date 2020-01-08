@@ -4,4 +4,5 @@ pysnooper
 fire
 pandas
 numpy
+consecution
 git+https://github.com/cm2c-internet-measurements/minirdapc.git#egg=minirdapc
