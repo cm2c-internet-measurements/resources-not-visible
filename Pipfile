@@ -15,6 +15,7 @@ PySnooper = "*"
 pandas = "*"
 numpy = "*"
 pylint = "*"
+consecution = "*"
 
 [requires]
 python_version = "3.7"

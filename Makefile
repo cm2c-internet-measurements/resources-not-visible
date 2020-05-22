@@ -2,8 +2,8 @@
 #
 #
 
-.PHONY: 20191110
+.PHONY: 20200209
 
-20191102.done: 20191110
+20200209.done: 20200209
 	./s0_get_netdatadb.sh $<
 	time pipenv run ./s1_alloc_and_routes.py --date $<
