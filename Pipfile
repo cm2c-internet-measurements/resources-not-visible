@@ -1,21 +1,19 @@
 [[source]]
-name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-
-[dev-packages]
-pylint = "*"
+name = "pypi"
 
 [packages]
 pytricia = "*"
 click = "*"
-minirdapc = {git = "https://github.com/cm2c-internet-measurements/minirdapc.git"}
 fire = "*"
-PySnooper = "*"
 pandas = "*"
 numpy = "*"
-pylint = "*"
 consecution = "*"
+minirdapc = {git = "https://github.com/cm2c-internet-measurements/minirdapc.git"}
+PySnooper = "*"
+
+[dev-packages]
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"
