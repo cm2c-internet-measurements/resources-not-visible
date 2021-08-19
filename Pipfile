@@ -12,6 +12,7 @@ numpy = "*"
 consecution = "*"
 minirdapc = {git = "https://github.com/cm2c-internet-measurements/minirdapc.git"}
 PySnooper = "*"
+petl = "*"
 
 [dev-packages]
 
