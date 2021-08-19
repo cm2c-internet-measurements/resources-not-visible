@@ -45,6 +45,11 @@ agrupar listado por org ids y generar un segundo listado por org ids con número
    docker run -v $(pwd)/var:/var -v $(pwd):/opt/bin notvisible  \
    python3  /opt/bin/s1_alloc_and_routes.py --date 20210801 --limit 99999
    ```
+   
+   ```
+   docker run -v $(pwd)/var:/var -v $(pwd):/opt/bin notvisible  \
+   python3  /opt/bin/s2_aggregate_results.py --date 20210801
+   ```
 4.  Visualizar los datos
 
 ## Publicación de resultados:
